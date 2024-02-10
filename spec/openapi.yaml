@@ -1,0 +1,242 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Swagger Purolator
+  description: API for the Purolator's Shipping Web Service
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: Swagger API Team
+    email: apiteam@swagger.io
+    url: http://swagger.io
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url:
+paths:
+  /shipments:
+    post:
+      description: Create shipments using Purolator E-Ship Web Services
+      operationId: createShipment
+      requestBody:
+        description: The descriptive data of the requested shipment.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateShipment"
+      responses:
+        "200":
+          description: The descriptive data of the requested shipment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /shipments/{trackingNo}:
+    delete:
+      description: Void/Cancel a shipment that has been created but not shipped
+      operationId: voidShipment
+      parameters:
+        - name: trackingNo
+          in: path
+          description: tracking number of the shipment to be cancelled
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "204":
+          description: Shipment cancelled
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    CreateShipment:
+      type: object
+      required:
+        - printerType
+        - shipment
+      properties:
+        printerType:
+          type: string
+          enum: [Thermal, Regular]
+        shipment:
+          type: object
+          required:
+            - senderInformation
+            - receiverInformation
+            - packageInformation
+            - shipmentDate
+            - paymentInformation
+            - pickupInformation
+          properties:
+            senderInformation:
+              type: object
+              required:
+                - address
+              properties:
+                taxNumber:
+                  type: string
+                  x-oapi-codegen-extra-tags:
+                    validate: max=11
+                address:
+                  $ref: "#/components/schemas/Address"
+            receiverInformation:
+              type: object
+              required:
+                - address
+              properties:
+                taxNumber:
+                  type: string
+                  x-oapi-codegen-extra-tags:
+                    validate: max=11
+                address:
+                  $ref: "#/components/schemas/Address"
+            packageInformation:
+              type: object
+              required:
+                - serviceID
+                - description
+                - totalPieces
+                - totalWeight
+              properties:
+                serviceID:
+                  type: string
+                description:
+                  type: string
+                totalPieces:
+                  type: integer
+                  format: int32
+                piecesInformation:
+
+                totalWeight:
+                  $ref: "#/components/schemas/Weight"
+            shipmentDate:
+              type: string
+              pattern: '^\d{4}-\d{2}-\d{2}$'
+            paymentInformation:
+              type: object
+              properties:
+                paymentType:
+                  type: string
+                  enum: [Sender, Receiver, ThirdParty]
+                senderAccountNumber:
+                  type: string
+                  pattern: '^\d+$'
+                billingAccountNumber:
+                  type: string
+                  pattern: '^\d+$'
+            pickupInformation:
+              type: string
+              enum: [DropOff, PreScheduled]
+            trackingReferenceInformation:
+              type: object
+              properties:
+                reference1:
+                  type: string
+                reference2:
+                  type: string
+                reference3:
+                  type: string
+                reference4:
+                  type: string
+
+    Piece:
+      type: object
+      required:
+      properties:
+        weight:
+          $ref: "#/components/schemas/Weight"
+        length:
+          $ref: "#/components/schemas/Dimension"
+        width:
+          $ref: "#/components/schemas/Dimension"
+        height:
+          $ref: "#/components/schemas/Dimension"
+
+    Dimension:
+      type: object
+      required:
+        - value
+        - weightUnit
+      properties:
+        value:
+          type: integer
+          format: int32
+        dimensionUnit:
+          type: string
+          enum: [in, cm]
+
+    Weight:
+      type: object
+      required:
+        - value
+        - weightUnit
+      properties:
+        value:
+          type: integer
+          format: int32
+        weightUnit:
+          type: string
+          enum: [lb, kg]
+    Address:
+      type: object
+      required:
+        - name
+        - streetNumber
+        - streetName
+        - city
+        - province
+        - country
+        - postalCode
+        - phoneNumber
+      properties:
+        name:
+          type: string
+          x-oapi-codegen-extra-tags:
+            validate: max=30
+        company:
+          type: string
+          x-oapi-codegen-extra-tags:
+            validate: max=20
+        streetNumber:
+          type: string
+          x-oapi-codegen-extra-tags:
+            validate: max=6
+        streetName:
+          type: string
+          x-oapi-codegen-extra-tags:
+            validate: max=30
+        city:
+          type: string
+          x-oapi-codegen-extra-tags:
+            validate: max=30
+        province:
+          type: string
+        country:
+          type: string
+        postalCode:
+          type: string
+        phoneNumber:
+          type: object
+          properties:
+            countryCode:
+              type: string
+              pattern: '^\d+$'
+            areaCode:
+              type: string
+              pattern: '^\d+$'
+            phone:
+              type: string
+              pattern: '^\d+$'
