@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/pesimista/purolator-api/internal/app"
+)
 
 func main() {
-	fmt.Println("Hello!")
+	app.Run()
 }

@@ -12,11 +12,13 @@ info:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url:
+  - url: ""
 paths:
   /shipments:
     post:
       description: Create shipments using Purolator E-Ship Web Services
+      tags:
+        - Shipments
       operationId: createShipment
       requestBody:
         description: The descriptive data of the requested shipment.
@@ -24,7 +26,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateShipment"
+              $ref: "#/components/schemas/CreateShipmentRequest"
       responses:
         "200":
           description: The descriptive data of the requested shipment.
@@ -39,8 +41,32 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
   /shipments/{trackingNo}:
+    get:
+      description: Get a shipment label
+      tags:
+        - Shipments
+      operationId: GetDocument
+      parameters:
+        - name: trackingNo
+          in: path
+          description: tracking number of the shipment
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: Shipment cancelled
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     delete:
       description: Void/Cancel a shipment that has been created but not shipped
+      tags:
+        - Shipments
       operationId: voidShipment
       parameters:
         - name: trackingNo
@@ -62,16 +88,18 @@ paths:
 
 components:
   schemas:
-    CreateShipment:
+    CreateShipmentRequest:
       type: object
       required:
-        - printerType
         - shipment
+        - printerType
       properties:
         printerType:
+          x-order: 1
           type: string
           enum: [Thermal, Regular]
         shipment:
+          x-order: 0
           type: object
           required:
             - senderInformation
@@ -82,6 +110,7 @@ components:
             - pickupInformation
           properties:
             senderInformation:
+              x-order: 0
               type: object
               required:
                 - address
@@ -93,6 +122,7 @@ components:
                 address:
                   $ref: "#/components/schemas/Address"
             receiverInformation:
+              x-order: 1
               type: object
               required:
                 - address
@@ -103,7 +133,12 @@ components:
                     validate: max=11
                 address:
                   $ref: "#/components/schemas/Address"
+            shipmentDate:
+              x-order: 2
+              type: string
+              pattern: '^\d{4}-\d{2}-\d{2}$'
             packageInformation:
+              x-order: 3
               type: object
               required:
                 - serviceID
@@ -113,34 +148,53 @@ components:
               properties:
                 serviceID:
                   type: string
+                  x-order: 0
                 description:
                   type: string
+                  x-order: 1
+                totalWeight:
+                  $ref: "#/components/schemas/Weight"
                 totalPieces:
                   type: integer
                   format: int32
+                  x-order: 4
                 piecesInformation:
-
-                totalWeight:
-                  $ref: "#/components/schemas/Weight"
-            shipmentDate:
-              type: string
-              pattern: '^\d{4}-\d{2}-\d{2}$'
+                  type: object
+                  x-order: 5
+                  required:
+                    - pieces
+                  properties:
+                    pieces:
+                      x-oapi-codegen-extra-tags:
+                        xml: Piece
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/Piece"
             paymentInformation:
+              x-order: 4
               type: object
               properties:
                 paymentType:
+                  x-order: 0
                   type: string
                   enum: [Sender, Receiver, ThirdParty]
-                senderAccountNumber:
+                registeredAccountNumber:
+                  x-order: 1
                   type: string
                   pattern: '^\d+$'
                 billingAccountNumber:
+                  x-order: 2
                   type: string
                   pattern: '^\d+$'
             pickupInformation:
-              type: string
-              enum: [DropOff, PreScheduled]
+              x-order: 5
+              type: object
+              properties:
+                pickupType:
+                  type: string
+                  enum: [DropOff, PreScheduled]
             trackingReferenceInformation:
+              x-order: 6
               type: object
               properties:
                 reference1:
@@ -151,10 +205,14 @@ components:
                   type: string
                 reference4:
                   type: string
-
+       
     Piece:
       type: object
       required:
+        - weight
+        - length
+        - width
+        - height
       properties:
         weight:
           $ref: "#/components/schemas/Weight"
@@ -172,13 +230,16 @@ components:
         - weightUnit
       properties:
         value:
+          x-order: 0
           type: integer
           format: int32
         dimensionUnit:
+          x-order: 1
           type: string
           enum: [in, cm]
 
     Weight:
+      x-order: 2
       type: object
       required:
         - value
@@ -190,6 +251,7 @@ components:
         weightUnit:
           type: string
           enum: [lb, kg]
+
     Address:
       type: object
       required:
@@ -204,39 +266,63 @@ components:
       properties:
         name:
           type: string
+          x-order: 0
           x-oapi-codegen-extra-tags:
             validate: max=30
         company:
           type: string
+          x-order: 1
           x-oapi-codegen-extra-tags:
             validate: max=20
         streetNumber:
           type: string
+          x-order: 2
           x-oapi-codegen-extra-tags:
             validate: max=6
         streetName:
           type: string
+          x-order: 3
           x-oapi-codegen-extra-tags:
             validate: max=30
         city:
           type: string
+          x-order: 4
           x-oapi-codegen-extra-tags:
             validate: max=30
         province:
           type: string
+          x-order: 5
         country:
           type: string
+          x-order: 6
         postalCode:
           type: string
+          x-order: 7
         phoneNumber:
+          x-order: 8
           type: object
           properties:
             countryCode:
               type: string
               pattern: '^\d+$'
+              x-order: 0
             areaCode:
               type: string
               pattern: '^\d+$'
+              x-order: 1
             phone:
               type: string
               pattern: '^\d+$'
+              x-order: 2
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
