@@ -315,7 +315,7 @@ type ClientWithResponsesInterface interface {
 type CreateShipmentResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *Error
+	JSON201      *CreateShipmentRes
 	JSONDefault  *Error
 }
 
@@ -428,12 +428,12 @@ func ParseCreateShipmentResponse(rsp *http.Response) (*CreateShipmentResponse, e
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Error
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest CreateShipmentRes
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSON200 = &dest
+		response.JSON201 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error

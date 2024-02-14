@@ -28,12 +28,12 @@ paths:
             schema:
               $ref: "#/components/schemas/CreateShipmentRequest"
       responses:
-        "200":
+        "201":
           description: The descriptive data of the requested shipment.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/CreateShipmentRes"
         default:
           description: unexpected error
           content:
@@ -56,7 +56,10 @@ paths:
 
       responses:
         "200":
-          description: Shipment cancelled
+          description: Returns the shipment label information
+          content:
+            application/json:
+              $ref: "#/components/schemas/GetDocumentResponse"
         default:
           description: unexpected error
           content:
@@ -205,7 +208,26 @@ components:
                   type: string
                 reference4:
                   type: string
-       
+
+    CreateShipmentRes:
+      type: object
+      required:
+        - trackingNOs
+        - masterTrackingNo
+      properties:
+        masterTrackingNo:
+          type: string
+        trackingNOs:
+          type: array
+          items:
+            type: string
+
+    GetDocumentRes:
+      type: object
+      properties:
+        url:
+          type: string
+
     Piece:
       type: object
       required:
@@ -323,6 +345,6 @@ components:
       properties:
         code:
           type: integer
-          format: int32
+          format: int
         message:
           type: string

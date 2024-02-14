@@ -108,6 +108,12 @@ type CreateShipmentRequestShipmentPickupInformationPickupType string
 // CreateShipmentRequestPrinterType defines model for CreateShipmentRequest.PrinterType.
 type CreateShipmentRequestPrinterType string
 
+// CreateShipmentRes defines model for CreateShipmentRes.
+type CreateShipmentRes struct {
+	MasterTrackingNo string   `json:"masterTrackingNo"`
+	TrackingNOs      []string `json:"trackingNOs"`
+}
+
 // Dimension defines model for Dimension.
 type Dimension struct {
 	Value         int32                   `json:"value"`
@@ -119,7 +125,7 @@ type DimensionDimensionUnit string
 
 // Error defines model for Error.
 type Error struct {
-	Code    int32  `json:"code"`
+	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
