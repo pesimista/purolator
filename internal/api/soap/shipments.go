@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/pesimista/purolator-api/internal/api/models"
-	"github.com/pesimista/purolator-api/internal/api/openapi"
+	"github.com/pesimista/purolator-rest-api/internal/api/models"
+	"github.com/pesimista/purolator-rest-api/internal/api/openapi"
 )
 
 const (
@@ -18,7 +18,7 @@ const (
 func (s *SoapClient) CreateShipment(shipment *openapi.CreateShipmentRequest) (*models.CreateShipmentResponse, error) {
 	const op string = "soap.CreateShipment"
 
-	envelopeXML, err := models.NewEnvelopeXML(shipment)
+	envelopeXML, err := NewEnvelopeXML(shipment)
 	if err != nil {
 		return nil, fmt.Errorf("%s: could create an envelope for the request: %s", op, err)
 	}
@@ -30,15 +30,17 @@ func (s *SoapClient) CreateShipment(shipment *openapi.CreateShipmentRequest) (*m
 		envelopeXML,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("%s: could create an envelope for the request: %s", op, err)
+		return nil, fmt.Errorf("%v: %w", op, err)
 	}
-
-	fmt.Println(responseString)
 
 	var response *models.EnvelopeCreateShipmentResponse
 	err = xml.Unmarshal([]byte(responseString), &response)
 	if err != nil {
-		return nil, fmt.Errorf("%s: could not decode xml body: %s", op, err)
+		return nil, fmt.Errorf("%s: %w %w", op, ErrInvalidXML, err)
+	}
+
+	if response.Body.Error != nil {
+		return nil, fmt.Errorf("%s: %w %v", op, ErrSoapResponse, response.Body.Error.Description)
 	}
 
 	return &response.Body, nil
@@ -48,14 +50,14 @@ func (s *SoapClient) VoidShipment(trackingNo string) (*models.VoidShipmentRespon
 	const op string = "soap.VoidShipment"
 
 	if len(trackingNo) == 0 {
-		return nil, fmt.Errorf("%s: missing tracking number", op)
+		return nil, fmt.Errorf("%s: %w", op, ErrMissingTrackingNumber)
 	}
 
 	voidRequest := models.VoidShipmentRequest{
 		Pin: trackingNo,
 	}
 
-	envelopeXML, err := models.NewEnvelopeXML(voidRequest)
+	envelopeXML, err := NewEnvelopeXML(voidRequest)
 	if err != nil {
 		return nil, fmt.Errorf("%s: could create an envelope for the request: %s", op, err)
 	}
@@ -71,16 +73,14 @@ func (s *SoapClient) VoidShipment(trackingNo string) (*models.VoidShipmentRespon
 		return nil, fmt.Errorf("%s: could create an envelope for the request: %s", op, err)
 	}
 
-	fmt.Println(responseString)
-
 	var response *models.EnvelopeVoidShipmentResponse
 	err = xml.Unmarshal([]byte(responseString), &response)
 	if err != nil {
-		return nil, fmt.Errorf("%s: could not decode xml body: %s", op, err)
+		return nil, fmt.Errorf("%s: %w %s", op, ErrInvalidXML, err)
 	}
 
 	if response.Body.Error != nil {
-		return nil, fmt.Errorf("%s: error returned by endpoint: %s", op, response.Body.Error.Description)
+		return nil, fmt.Errorf("%s: %w %v", op, ErrSoapResponse, response.Body.Error.Description)
 	}
 
 	return &response.Body, nil

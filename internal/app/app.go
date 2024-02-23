@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/pesimista/purolator-api/internal/api"
+	"github.com/pesimista/purolator-rest-api/internal/api"
 )
 
 func Run() {

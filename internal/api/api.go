@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pesimista/purolator-api/internal/api/controller"
+	"github.com/pesimista/purolator-rest-api/internal/api/controller"
 )
 
 type Server struct {
@@ -27,7 +27,7 @@ func NewServer() *Server {
 	return &Server{
 		engine: handler,
 		server: &http.Server{
-			Addr:              ":8080",
+			Addr:              "localhost:8080",
 			Handler:           handler,
 			ReadHeaderTimeout: time.Second * 30,
 		},

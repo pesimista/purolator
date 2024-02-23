@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/pesimista/purolator-api/internal/api/handlers"
-	"github.com/pesimista/purolator-api/internal/api/openapi"
-	"github.com/pesimista/purolator-api/internal/api/soap"
+	"github.com/pesimista/purolator-rest-api/internal/api/handlers"
+	"github.com/pesimista/purolator-rest-api/internal/api/openapi"
+	"github.com/pesimista/purolator-rest-api/internal/api/soap"
 )
 
 func NewRouter(handler *gin.Engine) {
@@ -25,7 +27,8 @@ func NewRouter(handler *gin.Engine) {
 		Middlewares: make([]openapi.MiddlewareFunc, 0),
 	}
 
-	client := soap.NewSoapClient("", "")
+	httpClient := &http.Client{}
+	client := soap.NewSoapClient("f1d4907b025a4e17bf78a0954f099de5", "I4M.LRIN", httpClient)
 	RegisterHandlers(handler, handlers.NewServer(client), opt)
 }
 

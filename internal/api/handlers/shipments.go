@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	cErrors "github.com/pesimista/purolator-api/internal/api/errors"
-	"github.com/pesimista/purolator-api/internal/api/openapi"
+	cErrors "github.com/pesimista/purolator-rest-api/internal/api/errors"
+	"github.com/pesimista/purolator-rest-api/internal/api/openapi"
 )
 
 const (

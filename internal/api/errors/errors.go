@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pesimista/purolator-api/internal/api/openapi"
+	"github.com/pesimista/purolator-rest-api/internal/api/openapi"
 )
 
 // type defaultMessage struct {

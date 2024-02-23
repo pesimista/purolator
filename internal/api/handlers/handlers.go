@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/pesimista/purolator-api/internal/api/openapi"
-	"github.com/pesimista/purolator-api/internal/api/soap"
+	"github.com/pesimista/purolator-rest-api/internal/api/openapi"
+	"github.com/pesimista/purolator-rest-api/internal/api/soap"
 )
 
 type server struct {

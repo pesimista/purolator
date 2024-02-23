@@ -1,4 +1,4 @@
-module github.com/pesimista/purolator-api
+module github.com/pesimista/purolator-rest-api
 
 go 1.22
 
@@ -17,6 +17,7 @@ require (
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
+	github.com/go-faker/faker/v4 v4.3.0 // indirect
 	github.com/go-openapi/analysis v0.21.5 // indirect
 	github.com/go-openapi/errors v0.21.0 // indirect
 	github.com/go-openapi/jsonpointer v0.20.2 // indirect
